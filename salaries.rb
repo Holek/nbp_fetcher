@@ -108,6 +108,8 @@ class NbpFetcher
 
   def latest_data_available?
     !parse_csv_year([date_as_nbp(today)], today.year, "EUR").empty?
+  rescue Errno::ENOENT
+    false
   end
 
   def date_as_nbp(date)
