@@ -1,0 +1,19 @@
+on:
+  push:
+    branches:
+      - '*'
+  schedule:
+    - cron: '20 16 * * 1-5'
+
+jobs:
+  check_salaries:
+    name: Check salaries (click on Salaries)
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+      - name: Salaries
+        run: |
+          ./salaries.rb -cEUR
+          ./salaries.rb -cUSD
+
