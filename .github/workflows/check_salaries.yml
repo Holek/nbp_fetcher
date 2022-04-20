@@ -8,7 +8,7 @@ on:
 jobs:
   check_salaries:
     name: Check salaries (click on Salaries)
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
