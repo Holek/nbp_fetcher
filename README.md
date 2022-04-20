@@ -4,6 +4,10 @@ This small script fetches Bank of Poland's exchange rates for last 6 months and 
 
 By default, it supports EUR and USD checks against PLN.
 
+## Compatibility
+
+This script is compatible with all Ruby versions 2.5 and newer. Basically, you can just run it as is.
+
 ## Usage
 
 By default the script prints out this help prompt
