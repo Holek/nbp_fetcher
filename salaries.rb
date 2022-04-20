@@ -75,7 +75,7 @@ class NbpFetcher
   end
 
   def parse_csv_between(after_date, until_date, currency)
-    range = (after_date...until_date).map(&method(:date_as_nbp))
+    range = (after_date..until_date).map(&method(:date_as_nbp))
     rates = []
     if after_date.year != until_date.year
       rates += parse_csv_year(range, after_date.year, currency)
