@@ -173,12 +173,12 @@ def all_supported_currencies(opts)
   puts <<~MD
     # Salary conversion
 
-    Given salary: **#{opts.salary} PLN
+    Given salary: **#{opts.salary} PLN**
 
-    | Currency | Average rate in last 6 months | Salary in that average   | Converted back to PLN on #{Date.today.to_s} |
-    | -------- | ----------------------------- | ------------------------ | ------------------------------------------- |
-    | USD      | #{usd_avg.to_f}               | $#{usd_salary_exchanged.to_f} | #{usd_and_back.to_f} PLN               |
-    | EUR      | #{eur_avg.to_f}               | €#{eur_salary_exchanged.to_f} | #{eur_and_back.to_f} PLN               |
+    | Currency | Average rate in last 6 months | Salary in that average        | Rate of currency today | Converted back to PLN on #{Date.today.to_s} |
+    | -------- | ----------------------------- | ----------------------------- | ---------------------- | ------------------------------------------- |
+    | USD      | #{usd_avg.to_f}               | $#{usd_salary_exchanged.to_f} | #{usd.last.to_f}       | #{usd_and_back.to_f} PLN                    |
+    | EUR      | #{eur_avg.to_f}               | €#{eur_salary_exchanged.to_f} | #{eur.last.to_f}       | #{eur_and_back.to_f} PLN                    |
 
 
 
