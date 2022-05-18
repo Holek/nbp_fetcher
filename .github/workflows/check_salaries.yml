@@ -7,13 +7,13 @@ on:
 
 jobs:
   check_salaries:
-    name: Check salaries (click on Salaries)
+    name: Check salaries
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
       - name: Salaries
         run: |
-          ./salaries.rb -cEUR
-          ./salaries.rb -cUSD
+          ./salaries.rb -cEUR -fmarkdown >> $GITHUB_STEP_SUMMARY
+          ./salaries.rb -cUSD -fmarkdown >> $GITHUB_STEP_SUMMARY
 

@@ -119,18 +119,22 @@ end
 
 
 
-Options = Struct.new(:currency, :salary)
+Options = Struct.new(:currency, :salary, :format)
 
 class Parser
   def self.parse(options)
 		# lol, stereotypowy programista 15k
-    args = Options.new("EUR", 15000)
+    args = Options.new("EUR", 15000, "markdown")
 
     opt_parser = OptionParser.new do |opts|
       opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
 
       opts.on("-c", "--currency=USD|EUR", "Currency to track, currently USD or EUR are available") do |c|
         args.currency = c
+      end
+
+      opts.on("-f", "--format=markdown|text", "Output format") do |f|
+        args.format = f
       end
 
 			opts.on("-s", "--salary=15000", "Monthly salary in PLN to convert to in desired currency (full amounts only)") do |s|
@@ -162,14 +166,32 @@ if __FILE__ == $0
     salary_exchanged = (Rational(opts.salary) / avg).round(2)
     and_back = (salary_exchanged * result.last).round(2)
 
-    puts "Salary given: #{opts.salary} PLN"
-    puts
-    puts "Average rate of #{opts.currency} in last 6 months: #{avg.to_f}"
-    puts "Exchange rate known as of today:      #{result.last.to_f}"
-    puts
-    puts "If you wanted to exchange your contract today:"
-    puts "* You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract"
-    puts "* And you would earn #{and_back.to_f} PLN with today's exchange rate"
+    if opts.format == "markdown"
+      puts <<~MD
+        # Salary conversion to #{opts.currency}
+
+        * Given salary: #{opts.salary} PLN
+        * Average rate of #{opts.currency} in last 6 months: *#{avg.to_f}*
+        * Exchange rate known as of today: *#{result.last.to_f}*
+
+        If you wanted to exchagne your contract today:
+
+        * You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract
+        * And you would earn #{and_back.to_f} PLN with today's exchange rate
+
+
+      MD
+
+    else
+      puts "Salary given: #{opts.salary} PLN"
+      puts
+      puts "Average rate of #{opts.currency} in last 6 months: #{avg.to_f}"
+      puts "Exchange rate known as of today:      #{result.last.to_f}"
+      puts
+      puts "If you wanted to exchange your contract today:"
+      puts "* You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract"
+      puts "* And you would earn #{and_back.to_f} PLN with today's exchange rate"
+    end
   end
 end
 
