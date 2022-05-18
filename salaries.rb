@@ -119,12 +119,12 @@ end
 
 
 
-Options = Struct.new(:currency, :salary, :format)
+Options = Struct.new(:currency, :salary, :format, :all)
 
 class Parser
   def self.parse(options)
 		# lol, stereotypowy programista 15k
-    args = Options.new("EUR", 15000, "markdown")
+    args = Options.new("EUR", 15000, "markdown", false)
 
     opt_parser = OptionParser.new do |opts|
       opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
@@ -133,6 +133,9 @@ class Parser
         args.currency = c
       end
 
+      opts.on("-a", "--all", "Show all supported currencies") do |a|
+        args.all = a
+      end
       opts.on("-f", "--format=markdown|text", "Output format") do |f|
         args.format = f
       end
@@ -152,45 +155,82 @@ class Parser
   end
 end
 
+def all_supported_currencies(opts)
+  fetcher = NbpFetcher.new
+  fetcher.fetch unless fetcher.latest_data_available?
+
+  eur = fetcher.get_results("EUR")
+  usd = fetcher.get_results("USD")
+
+  eur_avg = eur.average
+  eur_salary_exchanged = (Rational(opts.salary) / eur_avg).round(2)
+  eur_and_back = (eur_salary_exchanged * eur.last).round(2)
+
+  usd_avg = usd.average
+  usd_salary_exchanged = (Rational(opts.salary) / usd_avg).round(2)
+  usd_and_back = (usd_salary_exchanged * usd.last).round(2)
+
+  puts <<~MD
+    # Salary conversion
+
+    Given salary: **#{opts.salary} PLN
+
+    | Currency | Average rate in last 6 months | Salary in that average   | Converted back to PLN on #{Date.today.to_s} |
+    | -------- | ----------------------------- | ------------------------ | ------------------------------------------- |
+    | USD      | #{usd_avg.to_f}               | $#{usd_salary_exchanged.to_f} | #{usd_and_back.to_f} PLN               |
+    | EUR      | #{eur_avg.to_f}               | €#{eur_salary_exchanged.to_f} | #{eur_and_back.to_f} PLN               |
+
+
+
+  MD
+
+end
+
+def single_currency(opts)
+  fetcher = NbpFetcher.new
+  fetcher.fetch unless fetcher.latest_data_available?
+
+  result = fetcher.get_results(opts.currency)
+
+  avg = result.average
+  salary_exchanged = (Rational(opts.salary) / avg).round(2)
+  and_back = (salary_exchanged * result.last).round(2)
+
+  if opts.format == "markdown"
+    puts <<~MD
+      # Salary conversion to #{opts.currency}
+
+      * Given salary: #{opts.salary} PLN
+      * Average rate of #{opts.currency} in last 6 months: *#{avg.to_f}*
+      * Exchange rate known as of today: *#{result.last.to_f}*
+
+      If you wanted to exchagne your contract today:
+
+      * You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract
+      * And you would earn #{and_back.to_f} PLN with today's exchange rate
+    MD
+  else
+    puts "Salary given: #{opts.salary} PLN"
+    puts
+    puts "Average rate of #{opts.currency} in last 6 months: #{avg.to_f}"
+    puts "Exchange rate known as of today:      #{result.last.to_f}"
+    puts
+    puts "If you wanted to exchange your contract today:"
+    puts "* You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract"
+    puts "* And you would earn #{and_back.to_f} PLN with today's exchange rate"
+  end
+
+end
+
 if __FILE__ == $0
 	if ARGV.empty?
 		Parser.parse(["-h"])
 	else
 		opts = Parser.parse(ARGV)
-
-    fetcher = NbpFetcher.new
-    fetcher.fetch unless fetcher.latest_data_available?
-    result = fetcher.get_results(opts.currency)
-
-    avg = result.average
-    salary_exchanged = (Rational(opts.salary) / avg).round(2)
-    and_back = (salary_exchanged * result.last).round(2)
-
-    if opts.format == "markdown"
-      puts <<~MD
-        # Salary conversion to #{opts.currency}
-
-        * Given salary: #{opts.salary} PLN
-        * Average rate of #{opts.currency} in last 6 months: *#{avg.to_f}*
-        * Exchange rate known as of today: *#{result.last.to_f}*
-
-        If you wanted to exchagne your contract today:
-
-        * You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract
-        * And you would earn #{and_back.to_f} PLN with today's exchange rate
-
-
-      MD
-
+    if opts.all
+      all_supported_currencies(opts)
     else
-      puts "Salary given: #{opts.salary} PLN"
-      puts
-      puts "Average rate of #{opts.currency} in last 6 months: #{avg.to_f}"
-      puts "Exchange rate known as of today:      #{result.last.to_f}"
-      puts
-      puts "If you wanted to exchange your contract today:"
-      puts "* You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract"
-      puts "* And you would earn #{and_back.to_f} PLN with today's exchange rate"
+      single_currency(opts)
     end
   end
 end
