@@ -119,12 +119,12 @@ end
 
 
 
-Options = Struct.new(:currency, :salary, :format, :all)
+Options = Struct.new(:currency, :salary, :format, :all, :average_given, :average)
 
 class Parser
   def self.parse(options)
 		# lol, stereotypowy programista 15k
-    args = Options.new("EUR", 15000, "markdown", false)
+    args = Options.new("EUR", 15000, "markdown", false, false, 0.0)
 
     opt_parser = OptionParser.new do |opts|
       opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
@@ -144,6 +144,13 @@ class Parser
 				args.salary = s.to_i
 			end
 
+      opts.on("-v", "--average[=OPTIONAL]", Float, "Currency rate to use to calculate difference from as a float (by default, average of last 6 months)") do |avg|
+        if avg
+          args.average_given = true
+          args.average = Rational(avg)
+        end
+      end
+
       opts.on("-h", "--help", "Prints this help") do
         puts opts
         exit
@@ -162,11 +169,18 @@ def all_supported_currencies(opts)
   eur = fetcher.get_results("EUR")
   usd = fetcher.get_results("USD")
 
-  eur_avg = eur.average
+  if opts.average_given
+    eur_avg = usd_avg = opts.average
+    second_column = "Rate given"
+  else
+    eur_avg = eur.average
+    usd_avg = usd.average
+    second_column = "Average rate in last 6 months"
+  end
+
   eur_salary_exchanged = (Rational(opts.salary) / eur_avg).round(2)
   eur_and_back = (eur_salary_exchanged * eur.last).round(2)
 
-  usd_avg = usd.average
   usd_salary_exchanged = (Rational(opts.salary) / usd_avg).round(2)
   usd_and_back = (usd_salary_exchanged * usd.last).round(2)
 
@@ -175,10 +189,10 @@ def all_supported_currencies(opts)
 
     Given salary: **#{opts.salary} PLN**
 
-    | Currency | Average rate in last 6 months | Salary in that average        | Rate of currency today | Converted back to PLN on #{Date.today.to_s} |
-    | -------- | ----------------------------- | ----------------------------- | ---------------------- | ------------------------------------------- |
-    | USD      | #{usd_avg.to_f}               | $#{usd_salary_exchanged.to_f} | #{usd.last.to_f}       | #{usd_and_back.to_f} PLN                    |
-    | EUR      | #{eur_avg.to_f}               | €#{eur_salary_exchanged.to_f} | #{eur.last.to_f}       | #{eur_and_back.to_f} PLN                    |
+    | Currency | #{second_column} | Salary in that average | Rate of currency today | Converted back to PLN on #{Date.today.to_s} |
+    | -------- | ---------- | ---------------------- | ---------------------- | ----------------------------------- |
+    | USD      | #{usd_avg.to_f.to_s.ljust(second_column.size)} | $#{usd_salary_exchanged.to_f.to_s.ljust(21)} | #{usd.last.to_f.to_s.ljust(22)} | #{(usd_and_back.to_f.to_s + " PLN").ljust(35)} |
+    | EUR      | #{eur_avg.to_f.to_s.ljust(second_column.size)} | €#{eur_salary_exchanged.to_f.to_s.ljust(21)} | #{eur.last.to_f.to_s.ljust(22)} | #{(eur_and_back.to_f.to_s + " PLN").ljust(35)} |
 
 
 
@@ -192,7 +206,13 @@ def single_currency(opts)
 
   result = fetcher.get_results(opts.currency)
 
-  avg = result.average
+  if opts.average_given
+    avg = opts.average
+    rate_text = "Rate given"
+  else
+    avg = result.average
+    rate_text = "Average rate of #{opts.currency} in last 6 months"
+  end
   salary_exchanged = (Rational(opts.salary) / avg).round(2)
   and_back = (salary_exchanged * result.last).round(2)
 
@@ -201,7 +221,7 @@ def single_currency(opts)
       # Salary conversion to #{opts.currency}
 
       * Given salary: #{opts.salary} PLN
-      * Average rate of #{opts.currency} in last 6 months: *#{avg.to_f}*
+      * #{rate_text}: *#{avg.to_f}*
       * Exchange rate known as of today: *#{result.last.to_f}*
 
       If you wanted to exchagne your contract today:
@@ -212,7 +232,7 @@ def single_currency(opts)
   else
     puts "Salary given: #{opts.salary} PLN"
     puts
-    puts "Average rate of #{opts.currency} in last 6 months: #{avg.to_f}"
+    puts "#{rate_text}: #{avg.to_f}"
     puts "Exchange rate known as of today:      #{result.last.to_f}"
     puts
     puts "If you wanted to exchange your contract today:"
