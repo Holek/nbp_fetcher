@@ -16,7 +16,10 @@ By default the script prints out this help prompt
 $ ./salaries.rb
 Usage: salaries.rb [options]
     -c, --currency=USD|EUR           Currency to track, currently USD or EUR are available
+    -a, --all                        Show all supported currencies
+    -f, --format=markdown|line|text  Output format (line format only supported in single currencies)
     -s, --salary=15000               Monthly salary in PLN to convert to in desired currency (full amounts only)
+    -v, --average[=OPTIONAL]         Currency rate to use to calculate difference from as a float (by default, average of last 6 months)
     -h, --help                       Prints this help
 ```
 
@@ -24,14 +27,16 @@ Simple usage:
 
 ```
 $ ruby ./salaries.rb -cEUR
-Salary given: 15000 PLN
+# Salary conversion to EUR
 
-Average rate of EUR in last 6 months: 4.6288
-Exchange rate known as of today:      4.6295
+* Given salary: 15000 PLN
+* Average rate of EUR in last 6 months: *4.6308*
+* Exchange rate known as of today: *4.5876*
 
-If you wanted to exchange your contract today:
-* You would be given 3240.58 EUR on the contract
-* And you would earn 15002.27 PLN with today's exchange rate
+If you wanted to exchagne your contract today:
+
+* You would be given 3239.18 EUR on the contract
+* And you would earn 14860.06 PLN with today's exchange rate
 ```
 
 [Why 15000 PLN?](https://geek.justjoin.it/programista-15k-czyli-wszystko-co-musisz-wiedziec-o-pracy-w-it-w-polsce) [pl]

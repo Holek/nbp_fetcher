@@ -136,7 +136,7 @@ class Parser
       opts.on("-a", "--all", "Show all supported currencies") do |a|
         args.all = a
       end
-      opts.on("-f", "--format=markdown|text", "Output format") do |f|
+      opts.on("-f", "--format=markdown|line|text", "Output format (line format only supported in single currencies)") do |f|
         args.format = f
       end
 
@@ -216,7 +216,8 @@ def single_currency(opts)
   salary_exchanged = (Rational(opts.salary) / avg).round(2)
   and_back = (salary_exchanged * result.last).round(2)
 
-  if opts.format == "markdown"
+  case opts.format
+  when "markdown"
     puts <<~MD
       # Salary conversion to #{opts.currency}
 
@@ -229,6 +230,8 @@ def single_currency(opts)
       * You would be given #{salary_exchanged.to_f} #{opts.currency} on the contract
       * And you would earn #{and_back.to_f} PLN with today's exchange rate
     MD
+  when "line"
+    puts "⋍#{salary_exchanged.to_f}#{opts.currency}=#{and_back.to_f}PLN"
   else
     puts "Salary given: #{opts.salary} PLN"
     puts
