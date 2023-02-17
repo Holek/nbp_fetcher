@@ -123,8 +123,7 @@ Options = Struct.new(:currency, :salary, :format, :all, :average_given, :average
 
 class Parser
   def self.parse(options)
-		# lol, stereotypowy programista 15k
-    args = Options.new("EUR", 15000, "markdown", false, false, 0.0)
+    args = Options.new("EUR", 20_000, "markdown", false, false, 0.0)
 
     opt_parser = OptionParser.new do |opts|
       opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
@@ -140,7 +139,7 @@ class Parser
         args.format = f
       end
 
-			opts.on("-s", "--salary=15000", "Monthly salary in PLN to convert to in desired currency (full amounts only)") do |s|
+			opts.on("-s", "--salary=20000", "Monthly salary in PLN to convert to in desired currency (full amounts only)") do |s|
 				args.salary = s.to_i
 			end
 

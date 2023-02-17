@@ -18,7 +18,7 @@ Usage: salaries.rb [options]
     -c, --currency=USD|EUR           Currency to track, currently USD or EUR are available
     -a, --all                        Show all supported currencies
     -f, --format=markdown|line|text  Output format (line format only supported in single currencies)
-    -s, --salary=15000               Monthly salary in PLN to convert to in desired currency (full amounts only)
+    -s, --salary=20000               Monthly salary in PLN to convert to in desired currency (full amounts only)
     -v, --average[=OPTIONAL]         Currency rate to use to calculate difference from as a float (by default, average of last 6 months)
     -h, --help                       Prints this help
 ```
