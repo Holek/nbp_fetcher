@@ -189,7 +189,7 @@ def all_supported_currencies(opts)
     Given salary: **#{opts.salary} PLN**
 
     | Currency | #{second_column} | Salary in that average | Rate of currency today | Converted back to PLN on #{Date.today.to_s} |
-    | -------- | ---------- | ---------------------- | ---------------------- | ----------------------------------- |
+    | -------- | #{"-"* second_column.length} | ---------------------- | ---------------------- | ----------------------------------- |
     | USD      | #{usd_avg.to_f.to_s.ljust(second_column.size)} | $#{usd_salary_exchanged.to_f.to_s.ljust(21)} | #{usd.last.to_f.to_s.ljust(22)} | #{(usd_and_back.to_f.to_s + " PLN").ljust(35)} |
     | EUR      | #{eur_avg.to_f.to_s.ljust(second_column.size)} | €#{eur_salary_exchanged.to_f.to_s.ljust(21)} | #{eur.last.to_f.to_s.ljust(22)} | #{(eur_and_back.to_f.to_s + " PLN").ljust(35)} |
 
