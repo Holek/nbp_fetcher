@@ -135,6 +135,7 @@ class Parser
       opts.on("-a", "--all", "Show all supported currencies") do |a|
         args.all = a
       end
+
       opts.on("-f", "--format=markdown|line|text", "Output format (line format only supported in single currencies)") do |f|
         args.format = f
       end
